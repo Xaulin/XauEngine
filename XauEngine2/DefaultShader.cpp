@@ -48,7 +48,6 @@ void DefaultShader::draw(ObjectsArrayElement** objArray, unsigned count){
 	camdir			3
 	*/
 
-
 	glm::mat4 projShadow = glm::ortho(-20.f, 20.f, -20.f, 20.f, -10.f, 50.f);
 
 	//=========================Generate shadow map=========================
