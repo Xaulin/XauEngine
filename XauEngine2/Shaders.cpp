@@ -211,7 +211,7 @@ const char* fs2 = {
 			if(texture2D(shadowMap, shadowCoord.xy + poissonDisk[i] / 700.0).z < shadowCoord.z - 0.005 )\
 				v -= 0.22;\
 		}\
-		color = texture2D(textureSampler, oUV).rgb * max(0.15, v * (diffuse + specular)); \
+		color = texture2D(textureSampler, oUV).rgb * max(0.1, v * (diffuse + specular)); \
 	}"
 };
 const char* dvs2 = {
