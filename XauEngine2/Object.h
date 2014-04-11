@@ -5,33 +5,24 @@
 
 class Object{
 public:
-	friend class Scene;
-
 	Object();
-	Object(Model* model, Texture* texture);
+	Object(Model* model, Texture* texture, int options);
 	~Object();
 
 	void setModel(Model* model);
 	void setTexture(Texture* texture);
 
 	void move(glm::vec3& vec);
-	void rotate(float& rangle, glm::vec3& vec);
+	void rotate(glm::vec4& vec);
 	void scale(glm::vec3& vec);
-	void setSpeed(float& perSec);
 
-private:
-	void update(unsigned time);
-	void setTime(unsigned time);
+	void moveNext(glm::vec3& vec);
+	void rotateNext(glm::vec4& vec);
+	void scaleNext(glm::vec3& vec);
 
 	Model* model;
 	Texture* texture;
 	glm::mat4 mat;
-
-	glm::vec3 mvec, rvec, svec,
-		mvec2, svec2;
-	float rangle, rangle2;
-	float speed;
-
-	unsigned lastTime;
+	int options;
 };
 

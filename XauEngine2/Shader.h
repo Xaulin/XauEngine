@@ -1,6 +1,8 @@
 #pragma once
 #include "Model.h"
 #include "Texture.h"
+#include "Object.h"
+#include <vector>
 
 enum ObjectOptions{
 	None = 0,
@@ -15,20 +17,9 @@ enum ObjectOptions{
 	ShadowToTexture = 256,
 };
 
-struct Object{
-	Model* model;
-	Texture* texture;
-};
-
-struct ObjectsArrayElement{
-	Object object;
-	glm::mat4 mat;
-	ObjectOptions options;
-};
-
 class Shader
 {
 public:
-	virtual void draw(ObjectsArrayElement** objArray, unsigned count) = 0;
+	virtual void draw(std::vector<Object*>& objects) = 0;
 };
 

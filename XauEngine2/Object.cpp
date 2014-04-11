@@ -1,14 +1,16 @@
 #include "Object.h"
 
-Object::Object() :
-model(0),
-texture(0),
-speed(1),
-rangle(rangle2 = 0){}
-Object::Object(Model* model, Texture* texture){
-	this->model = model;
-	this->texture = texture;
-}
+Object::Object() : 
+model(0), texture(0),
+mat(glm::mat4()),
+options(0){}
+
+Object::Object(Model* _model, Texture* _texture, int _options) : 
+model(_model),
+texture(_texture),
+mat(glm::mat4()),
+options(_options){}
+
 Object::~Object(){
 	delete[] model;
 	delete[] texture;
@@ -22,25 +24,20 @@ void Object::setTexture(Texture* texture){
 }
 
 void Object::move(glm::vec3& vec){
-	mvec = mvec2 = vec;
+	mat = glm::translate(vec);
 }
-void Object::rotate(float& rangle, glm::vec3& vec){
-	this->rangle = this->rangle2 = rangle;
-	rvec = vec;
+void Object::rotate(glm::vec4& vec){
+	mat = glm::rotate(vec.w, glm::vec3(vec));
 }
 void Object::scale(glm::vec3& vec){
-	svec = svec2 = vec;
+	mat = glm::scale(vec);
 }
-void Object::setSpeed(float& perSec){
-	speed = perSec;
+void Object::moveNext(glm::vec3& vec){
+	mat = glm::translate(mat, vec);
 }
-
-void Object::update(unsigned time){
-	mat = glm::scale(svec)*
-		glm::rotate(rangle, rvec)*
-		glm::translate(mvec);
-	lastTime = time;
+void Object::rotateNext(glm::vec4& vec){
+	mat = glm::rotate(mat, vec.w, glm::vec3(vec));
 }
-void Object::setTime(unsigned time){
-
+void Object::scaleNext(glm::vec3& vec){
+	mat = glm::scale(mat, vec);
 }

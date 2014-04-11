@@ -1,5 +1,6 @@
 #pragma once
 #include <assert.h>
+#include <vector>
 #include "GL\glm\gtx\transform.hpp"
 #include "Model.h"
 #include "Texture.h"
@@ -7,21 +8,13 @@
 
 class Scene{
 public:
-	Scene(unsigned objectElements);
+	Object* operator[](int slot);
+
+	Scene();
 	~Scene();
 
-	void addObject(unsigned slot, Object obj);
-	void addObject(unsigned slot, Object obj, int options);
-	
+	void addObject(Object* element);
 	void delObject(unsigned slot);
-
-	void move(unsigned slot, glm::vec3& vec);
-	void scale(unsigned slot, glm::vec3& vec);
-	void rotate(unsigned slot, glm::vec4& vec);
-
-	void moveNext(unsigned slot, glm::vec3& vec);
-	void scaleNext(unsigned slot, glm::vec3& vec);
-	void rotateNext(unsigned slot, glm::vec4& vec);
 
 	void bindShader(Shader* shader);
 	void delShader();
@@ -29,8 +22,7 @@ public:
 	void draw();
 
 private:
-	ObjectsArrayElement**objects;
-	unsigned objectElements;
+	std::vector<Object*> objects;
 	Shader* currentShader;
 };
 

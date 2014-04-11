@@ -10,7 +10,7 @@
 
 class DefaultShader : public Shader{
 public:
-	virtual void draw(ObjectsArrayElement** objArray, unsigned count);
+	virtual void draw(std::vector<Object*>& objects);
 
 	DefaultShader();
 	DefaultShader(glm::ivec4& viewport, glm::vec3& eye, glm::vec3& pos);
