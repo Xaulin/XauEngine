@@ -65,19 +65,16 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 	glewInit();
 
 	try{
-		Scene scene;
-		auto shader = new DefaultShader;
-		shader->setViewport(glm::ivec4(0, 0, 1024, 768));
+		auto shader = new DefaultShader(glm::ivec4(0, 0, 1024, 768));
 		shader->addLight(glm::vec3(0.25f, 1, 0.5));
 
-		scene.bindShader(shader);
-
-		scene.addObject(new Object(loadModel("Models/skybox2.ply"),
+		Scene scene(shader);
+		scene.add(new Object(loadModel("Models/skybox2.ply"),
 			loadTexture("Textures/skybox.bmp"), SkyBox));
-		scene.addObject(new Object(loadModel("Models/dungeon.ply"),
-			loadTexture("Textures/brick8.bmp"), None));
-		scene.addObject(new Object(loadModel("Models/cubeUnwarp.ply"),
-			loadTexture("Textures/brick.bmp"), None));
+		scene.add(new Object(loadModel("Models/dungeon.ply"),
+			loadTexture("Textures/brick8.bmp")));
+		scene.add(new Object(loadModel("Models/cubeUnwarp.ply"),
+			loadTexture("Textures/brick.bmp")));
 
 		scene[2]->move(glm::vec3(1, 1, 1));
 

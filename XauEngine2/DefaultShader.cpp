@@ -56,19 +56,17 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	glCullFace(GL_BACK);
 	glUseProgram(shadowProgram);
 
-	for (unsigned i = 0; i < lights.size(); ++i){
-		glBindFramebuffer(GL_FRAMEBUFFER, lights[i].fb);
+	for (auto& l : lights){
+		glBindFramebuffer(GL_FRAMEBUFFER, l.fb);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, FBO_W, FBO_H);
-
-		for each(auto o in objects){
+		for (auto o : objects){
 			if (!(o->options & ObjectOptions::NoShadow)){
-
-				lights[i].mat = projShadow *
-					glm::lookAt(pos + lights[i].dir,
+				l.mat = projShadow *
+					glm::lookAt(pos + l.dir,
 					pos, glm::vec3(0, 1, 0));
 
-				glUniformMatrix4fv(0, 1, 0, &(lights[i].mat*o->mat)[0][0]);
+				glUniformMatrix4fv(0, 1, 0, &(l.mat*o->mat)[0][0]);
 				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
 				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
 				glEnableVertexAttribArray(0);
@@ -95,45 +93,45 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 		glm::perspective(40.f, (float)viewport.z / (float)viewport.w, 0.001f, 1000.f)*
 		glm::lookAt(eye, pos, glm::vec3(0, 1, 0));
 
-	for (unsigned i = 0; i < objects.size(); ++i){
-		if (objects[i]->options & ObjectOptions::NoDepthTest)
+	for (auto o : objects){
+		if (o->options & ObjectOptions::NoDepthTest)
 			glDisable(GL_DEPTH_TEST);
 		else
 			glEnable(GL_DEPTH_TEST);
 
-		if (objects[i]->options & ObjectOptions::NoCullFacing)
+		if (o->options & ObjectOptions::NoCullFacing)
 			glDisable(GL_CULL_FACE);
 		else
 			glEnable(GL_CULL_FACE);
 
-		if (objects[i]->options & ObjectOptions::CullFacing)
+		if (o->options & ObjectOptions::CullFacing)
 			glCullFace(GL_FRONT);
 		else
 			glCullFace(GL_BACK);
 
 		//Simple Shader
-		if (objects[i]->options & ObjectOptions::SimpleShader){
+		if (o->options & ObjectOptions::SimpleShader){
 			glUseProgram(simpleProgram);
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, objects[i]->texture->id);
+			glBindTexture(GL_TEXTURE_2D, o->texture->id);
 			glUniform1i(1, 0);
 
 			glm::mat4 mat = projView;
-			if (objects[i]->options & ObjectOptions::StickToCamera)
+			if (o->options & ObjectOptions::StickToCamera)
 				mat *= glm::translate(eye);
 			else
-				mat *= objects[i]->mat;
+				mat *= o->mat;
 			glUniformMatrix4fv(0, 1, 0, &(mat[0][0]));
 
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->model->VBOs[1]);
+			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
 			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->model->VBOs[3]);
+			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[3]);
 			glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, 0);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objects[i]->model->VBOs[0]);
-			glDrawElements(GL_TRIANGLES, objects[i]->model->vcount, GL_UNSIGNED_INT, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o->model->VBOs[0]);
+			glDrawElements(GL_TRIANGLES, o->model->vcount, GL_UNSIGNED_INT, 0);
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 		}
@@ -142,7 +140,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 
 			//setup texture
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, objects[i]->texture->id);
+			glBindTexture(GL_TEXTURE_2D, o->texture->id);
 			glUniform1i(6, 0);
 
 			glActiveTexture(GL_TEXTURE1);
@@ -151,29 +149,29 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 
 			//setup matrix
 			glUniformMatrix4fv(2, 1, 0, &(projView[0][0]));
-			glUniformMatrix4fv(1, 1, 0, &(objects[i]->mat[0][0]));
+			glUniformMatrix4fv(1, 1, 0, &(o->mat[0][0]));
 			glUniformMatrix4fv(0, 1, 0, &((biasMatrix *
-				lights[0].mat * objects[i]->mat)[0][0]));
+				lights[0].mat * o->mat)[0][0]));
 
 			//setup light dir
-			glUniform3fv(4, 1, &(glm::vec4(lights[0].dir, 1) * objects[i]->mat)[0]);
+			glUniform3fv(4, 1, &(glm::vec4(lights[0].dir, 1) * o->mat)[0]);
 
 			//setup cam pos
 			glUniform3fv(3, 1, &pos[0]);
 			//draw
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->model->VBOs[1]);
+			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
 			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->model->VBOs[2]);
+			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[2]);
 			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, objects[i]->model->VBOs[3]);
+			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[3]);
 			glVertexAttribPointer(2, 2, GL_FLOAT, 0, 0, 0);
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
 			glEnableVertexAttribArray(2);
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, objects[i]->model->VBOs[0]);
-			glDrawElements(GL_TRIANGLES, objects[i]->model->vcount, GL_UNSIGNED_INT, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o->model->VBOs[0]);
+			glDrawElements(GL_TRIANGLES, o->model->vcount, GL_UNSIGNED_INT, 0);
 
 			glDisableVertexAttribArray(2);
 			glDisableVertexAttribArray(1);
@@ -183,7 +181,19 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 }
 
 DefaultShader::DefaultShader(){
+	init();
+}
+DefaultShader::DefaultShader(glm::ivec4& viewport){
+	this->viewport = viewport;
+	init();
+}
+DefaultShader::~DefaultShader(){
+	glDeleteProgram(program);
+	glDeleteProgram(shadowProgram);
+	glDeleteProgram(simpleProgram);
+}
 
+void DefaultShader::init(){
 	//========================Compile shaders========================
 
 	//===============Main shader===============
@@ -282,17 +292,6 @@ DefaultShader::DefaultShader(){
 
 	for each(GLuint a in vsid)
 		glDeleteShader(a);
-}
-DefaultShader::DefaultShader(glm::ivec4& viewport, glm::vec3& eye, glm::vec3& pos){
-	this->viewport = viewport;
-	this->eye = eye;
-	this->pos = pos;
-	DefaultShader();
-}
-DefaultShader::~DefaultShader(){
-	glDeleteProgram(program);
-	glDeleteProgram(shadowProgram);
-	glDeleteProgram(simpleProgram);
 }
 
 void DefaultShader::setViewport(glm::ivec4& viewport){

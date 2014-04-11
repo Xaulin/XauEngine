@@ -4,25 +4,24 @@
 #include "GL\glm\gtx\transform.hpp"
 #include "Model.h"
 #include "Texture.h"
-#include "Shader.h"
+#include "IShader.h"
 
 class Scene{
 public:
 	Object* operator[](int slot);
 
 	Scene();
+	Scene(IShader* shader);
 	~Scene();
 
-	void addObject(Object* element);
-	void delObject(unsigned slot);
-
-	void bindShader(Shader* shader);
-	void delShader();
-
+	void add(Object* element);
+	void del(unsigned slot);
+	void bind(IShader* shader);
 	void draw();
+	IShader* get();
 
 private:
 	std::vector<Object*> objects;
-	Shader* currentShader;
+	IShader* currentShader;
 };
 

@@ -17,9 +17,10 @@ enum ObjectOptions{
 	ShadowToTexture = 256,
 };
 
-class Shader
+class IShader
 {
 public:
+	virtual ~IShader() = 0;
 	virtual void draw(std::vector<Object*>& objects) = 0;
 };
 

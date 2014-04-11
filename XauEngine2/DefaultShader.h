@@ -1,5 +1,5 @@
 #pragma once
-#include "Shader.h"
+#include "IShader.h"
 #include "GL\glew.h"
 #include "GL\glm\gtx\transform.hpp"
 #include <vector>
@@ -8,12 +8,12 @@
 #define FBO_H 2048
 #define FBO_T GL_DEPTH_COMPONENT24
 
-class DefaultShader : public Shader{
+class DefaultShader : public IShader{
 public:
 	virtual void draw(std::vector<Object*>& objects);
 
 	DefaultShader();
-	DefaultShader(glm::ivec4& viewport, glm::vec3& eye, glm::vec3& pos);
+	DefaultShader(glm::ivec4& viewport);
 	~DefaultShader();
 	
 	void setViewport(glm::ivec4& vec);
@@ -22,6 +22,7 @@ public:
 	void setLight(unsigned slot, glm::vec3& vec);
 
 private:
+	void init();
 	GLuint program;
 	GLuint shadowProgram;
 	GLuint simpleProgram;

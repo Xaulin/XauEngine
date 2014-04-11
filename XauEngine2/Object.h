@@ -6,7 +6,7 @@
 class Object{
 public:
 	Object();
-	Object(Model* model, Texture* texture, int options);
+	Object(Model* model, Texture* texture, int options = 0);
 	~Object();
 
 	void setModel(Model* model);

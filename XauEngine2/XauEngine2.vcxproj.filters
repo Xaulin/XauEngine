@@ -41,6 +41,9 @@
     <ClCompile Include="Shaders.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="IShader.cpp">
+      <Filter>Shader</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">
@@ -55,10 +58,10 @@
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Shader.h">
+    <ClInclude Include="DefaultShader.h">
       <Filter>Shader</Filter>
     </ClInclude>
-    <ClInclude Include="DefaultShader.h">
+    <ClInclude Include="IShader.h">
       <Filter>Shader</Filter>
     </ClInclude>
   </ItemGroup>

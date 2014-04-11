@@ -12,8 +12,8 @@ mat(glm::mat4()),
 options(_options){}
 
 Object::~Object(){
-	delete[] model;
-	delete[] texture;
+	delete model;
+	delete texture;
 }
 
 void Object::setModel(Model* model){
