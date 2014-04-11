@@ -79,7 +79,7 @@ void DefaultShader::draw(ObjectsArrayElement** objArray, unsigned count){
 		}
 	}
 
-	//=========================Draw true scene=========================
+	//=========================Draw true scene=============================
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(viewport.x, viewport.y, viewport.z, viewport.w);
