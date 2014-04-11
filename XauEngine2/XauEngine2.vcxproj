@@ -22,6 +22,7 @@
     <ProjectGuid>{D159B1EF-7E01-4A34-93B5-7A3961570EA2}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>XauEngine2</RootNamespace>
+    <ProjectName>XauEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
