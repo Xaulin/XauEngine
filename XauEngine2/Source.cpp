@@ -71,12 +71,20 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 		Scene scene(shader);
 		scene.add(new Object(loadModel("Models/skybox2.ply"),
 			loadTexture("Textures/skybox.bmp"), SkyBox));
-		scene.add(new Object(loadModel("Models/dungeon.ply"),
-			loadTexture("Textures/brick8.bmp")));
 		scene.add(new Object(loadModel("Models/cubeUnwarp.ply"),
 			loadTexture("Textures/brick.bmp")));
+		scene.add(new Object(loadModel("Models/cubeUnwarp.ply"),
+			loadTexture("Textures/brick.bmp")));
+		scene.add(new Object(loadModel("Models/dungeon.ply"),
+			loadTexture("Textures/brick8.bmp")));
+		scene.add(new Object(loadModel("Models/dungeon.ply"),
+			loadTexture("Textures/brick8.bmp")));
 
+		scene[1]->move(glm::vec3(6.5, 1, -17.5));
 		scene[2]->move(glm::vec3(1, 1, 1));
+
+		scene[3]->rotate(glm::vec4(0,1,0,180));
+		scene[4]->moveNext(glm::vec3(0, 0, -15.9));
 
 		while (!glfwWindowShouldClose(window)){
 			if (keysState[0])
