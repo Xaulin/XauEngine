@@ -12,61 +12,52 @@
 
 GLFWwindow* window;
 double cx = 0, cy = 0;
-bool keysState[5];
-float aa = 3.14f, b = 0;
+double dx = 0, dy = 0;
+float l = 0;
+
+bool keysState[2];
+char scroll_state = 0;
+float aa = 3.14f, b = 0, zoom = 5, slow_zoom = 5;
+
 glm::vec4 camPos(0, 8, 0, 1);
 glm::vec4 camTarget(0, 0, 0, 1);
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
-	if (key == GLFW_KEY_W){
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			keysState[0] = true;
-		else
-			keysState[0] = false;
-	}
-	else if (key == GLFW_KEY_S){
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			keysState[1] = true;
-		else
-			keysState[1] = false;
-	}
-	else if (key == GLFW_KEY_A){
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			keysState[2] = true;
-		else
-			keysState[2] = false;
-	}
-	else if (key == GLFW_KEY_D){
-		if (action == GLFW_PRESS || action == GLFW_REPEAT)
-			keysState[3] = true;
-		else
-			keysState[3] = false;
-	}
-}
 
 void mouse_callback(GLFWwindow*, int k, int action, int){
 	if (k == GLFW_MOUSE_BUTTON_LEFT){
 		if (action == GLFW_PRESS || action == GLFW_REPEAT){
 			glfwGetCursorPos(window, &cx, &cy);
-			keysState[4] = true;
+			keysState[0] = true;
 		}
 		else
-			keysState[4] = false;
+			keysState[0] = false;
 	}
+	else if (k == GLFW_MOUSE_BUTTON_RIGHT){
+		if (action == GLFW_PRESS || action == GLFW_REPEAT){
+			glfwGetCursorPos(window, &dx, &dy);
+			keysState[1] = true;
+		}
+		else
+			keysState[1] = false;
+	}
+}
+
+
+void scroll_callback(GLFWwindow*, double x, double y){
+	zoom -= y;
 }
 
 INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 	glfwInit();
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	window = glfwCreateWindow(1024, 768, "test", 0, 0);
-	glfwSetKeyCallback(window, key_callback);
+	glfwWindowHint(GLFW_SAMPLES, 8);
+	window = glfwCreateWindow(1024, 768, "XauEngine", 0, 0);
 	glfwSetMouseButtonCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 	glfwMakeContextCurrent(window);
 	glewInit();
 
 	try{
 		auto shader = new DefaultShader(glm::ivec4(0, 0, 1024, 768));
-		shader->addLight(glm::vec3(0.25f, 1, 0.5));
+		shader->addLight(glm::normalize(glm::vec3(0.1f, 0.75, -0.2)));
 
 		Scene scene(shader);
 		scene.add(new Object(loadModel("Models/skybox2.ply"),
@@ -80,22 +71,15 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 		scene.add(new Object(loadModel("Models/dungeon.ply"),
 			loadTexture("Textures/brick8.bmp")));
 
-		scene[1]->move(glm::vec3(6.5, 1, -17.5));
+		scene[1]->rotate(glm::vec4(0, 1, 0, 45));
+		scene[1]->moveNext(glm::vec3(16.5f, 1.25f, -8.f));
 		scene[2]->move(glm::vec3(1, 1, 1));
 
-		scene[3]->rotate(glm::vec4(0,1,0,180));
+		scene[3]->rotate(glm::vec4(0, 1, 0, 180));
 		scene[4]->moveNext(glm::vec3(0, 0, -15.9));
 
 		while (!glfwWindowShouldClose(window)){
-			if (keysState[0])
-				camPos -= glm::normalize(camTarget)*0.1f;
-			if (keysState[1])
-				camPos += glm::normalize(camTarget)*0.1f;
-			if (keysState[2])
-				aa -= 4.f;
-			if (keysState[3])
-				aa += 4.f;
-			if (keysState[4]){
+			if (keysState[0]){
 				double x, y;
 				glfwGetCursorPos(window, &x, &y);
 				camPos += glm::vec4((float)(cx - x) / 50.f, 0, (float)(cy - y) / 50.f, 0)*
@@ -103,9 +87,19 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 				cx = x;
 				cy = y;
 			}
+			if (keysState[1]){
+				double x, y;
+				glfwGetCursorPos(window, &x, &y);
+				aa += (dx - x) / 4.f;
+				dx = x;
+				dy = y;
+			}
+			l += 0.05f;
+			shader->setLight(0, glm::normalize(glm::vec3(sin(l), 1.5, cos(l))));
+			slow_zoom += (zoom - slow_zoom) / 5;
 
 			camTarget = glm::vec4(0, 0, 4, 1)* glm::rotate(aa, glm::vec3(0, 1, 0));
-			shader->setCamera(glm::vec3(camPos) + glm::vec3(0, 8, 0) + glm::vec3(camTarget),
+			shader->setCamera(glm::vec3(camPos) + glm::vec3(0, slow_zoom, 0) + glm::vec3(camTarget),
 				glm::vec3(camPos));
 
 			scene.draw();
@@ -113,8 +107,8 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 			glfwPollEvents();
 		}
 	}
-	catch (std::exception& e){
-		MessageBoxA(0, e.what(), 0, 0);
+	catch (const char* e){
+		MessageBoxA(0, e, 0, 0);
 	}
 	glfwDestroyWindow(window);
 	glfwTerminate();

@@ -1,10 +1,9 @@
 #pragma once
-#include <assert.h>
-#include <vector>
 #include "GL\glm\gtx\transform.hpp"
 #include "Model.h"
 #include "Texture.h"
 #include "IShader.h"
+#include <vector>
 
 class Scene{
 public:

@@ -10,11 +10,11 @@ Texture* loadTexture(char* filepath){
 	FILE* f;
 	fopen_s(&f, filepath, "rb");
 	if (!f)
-		throw std::exception("Can't find file", 0);
+		throw "Cannot find file";
 
 	fread(header, 1, 54, f);
 	if (memcmp(header, "BM", 2))
-		throw std::exception("Bad model file format", 1);
+		throw "Bad texture file format";
 
 	dataPos = *(int*)&(header[0x0A]);
 	imageSize = *(int*)&(header[0x22]);
@@ -30,15 +30,15 @@ Texture* loadTexture(char* filepath){
 
 	glGenTextures(1, &texture->id);
 	glBindTexture(GL_TEXTURE_2D, texture->id);
-	glTexStorage2D(GL_TEXTURE_2D, 4, GL_RGBA8, width, height);
+	glTexStorage2D(GL_TEXTURE_2D, 5, GL_RGBA8, width, height);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, data);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);	
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	delete[] data;
 
 	return texture;

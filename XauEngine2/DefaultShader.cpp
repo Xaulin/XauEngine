@@ -48,7 +48,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	camdir			3
 	*/
 
-	glm::mat4 projShadow = glm::ortho(-20.f, 20.f, -20.f, 20.f, -10.f, 50.f);
+	glm::mat4 projShadow = glm::ortho(-30.f, 30.f, -30.f, 30.f, -10.f, 100.f);
 
 	//=========================Generate shadow map=========================
 	glEnable(GL_CULL_FACE);
@@ -313,6 +313,7 @@ void DefaultShader::addLight(glm::vec3& vec){
 	glBindTexture(GL_TEXTURE_2D, ld.dtext);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, FBO_T, FBO_W, FBO_H, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

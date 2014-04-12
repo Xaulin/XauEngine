@@ -1,9 +1,8 @@
 #pragma once
-#include <cstdio>
-#include <string.h>
-#include <exception>
 #include "GL\glew.h"
 #include "GL\glm\glm.hpp"
+#include <cstdio>
+#include <string.h>
 
 class Texture
 {

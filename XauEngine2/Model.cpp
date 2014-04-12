@@ -4,7 +4,7 @@ Model* loadModel(char* filepath){
 	FILE *f;
 	fopen_s(&f, filepath, "rb");
 	if (!f)
-		throw std::exception("Can't find file", 0);
+		throw "Cannot find file";
 
 	fseek(f, 0, SEEK_END);
 	long fsize = ftell(f);
@@ -15,7 +15,7 @@ Model* loadModel(char* filepath){
 	pdata[fsize] = 0;
 
 	if (memcmp((char*)pdata, "ply", 3))
-		throw std::exception("Bad model file format", 1);
+		throw "Bad model file format";
 
 	int vsize = atoi(strstr(((char*)pdata), "element vertex") + strlen("element vertex"));
 	int fasize = atoi(strstr(((char*)pdata), "element face") + strlen("element face"));
