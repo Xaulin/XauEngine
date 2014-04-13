@@ -1,6 +1,7 @@
 #include <Windows.h>
 #include "Scene.h"
 #include "DefaultShader.h"
+#include "DungeonGenerator.h"
 #include "GL\glfw3.h"
 #include <ctime>
 
@@ -21,6 +22,7 @@ float aa = 3.14f, b = 0, zoom = 5, slow_zoom = 5;
 
 glm::vec4 camPos(0, 8, 0, 1);
 glm::vec4 camTarget(0, 0, 0, 1);
+
 
 void mouse_callback(GLFWwindow*, int k, int action, int){
 	if (k == GLFW_MOUSE_BUTTON_LEFT){
@@ -43,12 +45,12 @@ void mouse_callback(GLFWwindow*, int k, int action, int){
 
 
 void scroll_callback(GLFWwindow*, double x, double y){
-	zoom -= y;
+	zoom -= (float)y;
 }
 
 INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 	glfwInit();
-	glfwWindowHint(GLFW_SAMPLES, 8);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 	window = glfwCreateWindow(1024, 768, "XauEngine", 0, 0);
 	glfwSetMouseButtonCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
@@ -57,26 +59,35 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 
 	try{
 		auto shader = new DefaultShader(glm::ivec4(0, 0, 1024, 768));
-		shader->addLight(glm::normalize(glm::vec3(0.1f, 0.75, -0.2)));
+		shader->addLight(glm::normalize(glm::vec3(1, 2, 2)));
 
 		Scene scene(shader);
 		scene.add(new Object(loadModel("Models/skybox2.ply"),
 			loadTexture("Textures/skybox.bmp"), SkyBox));
-		scene.add(new Object(loadModel("Models/cubeUnwarp.ply"),
-			loadTexture("Textures/brick.bmp")));
-		scene.add(new Object(loadModel("Models/cubeUnwarp.ply"),
-			loadTexture("Textures/brick.bmp")));
-		scene.add(new Object(loadModel("Models/dungeon.ply"),
-			loadTexture("Textures/brick8.bmp")));
-		scene.add(new Object(loadModel("Models/dungeon.ply"),
-			loadTexture("Textures/brick8.bmp")));
 
-		scene[1]->rotate(glm::vec4(0, 1, 0, 45));
-		scene[1]->moveNext(glm::vec3(16.5f, 1.25f, -8.f));
-		scene[2]->move(glm::vec3(1, 1, 1));
-
-		scene[3]->rotate(glm::vec4(0, 1, 0, 180));
-		scene[4]->moveNext(glm::vec3(0, 0, -15.9));
+		DungeonGenerator dg;
+		glm::vec3 dirs[] = {
+			glm::vec3(1, 0, 0),
+			glm::vec3(0, 0, 1),
+			glm::vec3(-1, 0, 0),
+			glm::vec3(0, 0, -1),
+		};
+		glm::vec3 dirs2[] = {
+			glm::vec3(1, 0, 0),
+			glm::vec3(-1, 0, 0),
+		};
+		glm::vec3 dirs3[] = {
+			glm::vec3(1, 0, 0),
+			glm::vec3(0, 0, 1),
+		};
+		dg.defineObject(new Object(loadModel("Models/dung1.ply"),
+			loadTexture("Textures/dung_tex2.bmp")), dirs, 4);
+		dg.defineObject(new Object(loadModel("Models/dung2.ply"),
+			loadTexture("Textures/dung_tex2.bmp")), dirs, 2);
+		dg.defineObject(new Object(loadModel("Models/dung3.ply"),
+			loadTexture("Textures/dung_tex2.bmp")), dirs, 2);
+		dg.generate(5000);
+		dg.applyObjects(&scene);
 
 		while (!glfwWindowShouldClose(window)){
 			if (keysState[0]){
@@ -90,12 +101,12 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 			if (keysState[1]){
 				double x, y;
 				glfwGetCursorPos(window, &x, &y);
-				aa += (dx - x) / 4.f;
+				aa += (float)(dx - x) / 4.f;
 				dx = x;
 				dy = y;
 			}
-			l += 0.05f;
-			shader->setLight(0, glm::normalize(glm::vec3(sin(l), 1.5, cos(l))));
+			//l += 0.05f;
+			//shader->setLight(0, glm::normalize(glm::vec3(sin(l), 1.5, cos(l))));
 			slow_zoom += (zoom - slow_zoom) / 5;
 
 			camTarget = glm::vec4(0, 0, 4, 1)* glm::rotate(aa, glm::vec3(0, 1, 0));

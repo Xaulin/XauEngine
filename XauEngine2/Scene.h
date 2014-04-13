@@ -14,7 +14,12 @@ public:
 	~Scene();
 
 	void add(Object* element);
+	void add(Object** elements, int size);
+	void rel(unsigned slot);
+	void rel(unsigned beg, unsigned end);
 	void del(unsigned slot);
+	void del(unsigned beg, unsigned end);
+	int size();
 	void bind(IShader* shader);
 	void draw();
 	IShader* get();

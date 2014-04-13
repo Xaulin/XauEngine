@@ -1,19 +1,17 @@
 #include "Object.h"
 
-Object::Object() : 
+Object::Object() :
 model(0), texture(0),
 mat(glm::mat4()),
 options(0){}
 
-Object::Object(Model* _model, Texture* _texture, int _options) : 
+Object::Object(Model* _model, Texture* _texture, int _options) :
 model(_model),
 texture(_texture),
 mat(glm::mat4()),
 options(_options){}
 
 Object::~Object(){
-	delete model;
-	delete texture;
 }
 
 void Object::setModel(Model* model){
@@ -40,4 +38,8 @@ void Object::rotateNext(glm::vec4& vec){
 }
 void Object::scaleNext(glm::vec3& vec){
 	mat = glm::scale(mat, vec);
+}
+void Object::release(){
+	delete model;
+	delete texture;
 }

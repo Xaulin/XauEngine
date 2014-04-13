@@ -1,68 +1,73 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resource Files">
+    <Filter Include="Engine">
+      <UniqueIdentifier>{a39511ae-c3a1-442e-8566-463c9c57441b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Model">
+      <UniqueIdentifier>{9105156f-57a0-4ac7-acc0-bc9fd3d7e93e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Object">
+      <UniqueIdentifier>{8f380cb6-9dde-475d-acb2-4d2879c4060c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Model">
-      <UniqueIdentifier>{9105156f-57a0-4ac7-acc0-bc9fd3d7e93e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Texture">
-      <UniqueIdentifier>{09f37393-486c-4921-9798-4f53ef2b5885}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Object">
-      <UniqueIdentifier>{8f380cb6-9dde-475d-acb2-4d2879c4060c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Scene">
+    <Filter Include="Engine\Scene">
       <UniqueIdentifier>{98c02e63-43ed-4ea4-af45-7a5bdba9cd08}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shader">
+    <Filter Include="Engine\Shader">
       <UniqueIdentifier>{88e56f63-f2c3-4556-94cb-792e90b51762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Texture">
+      <UniqueIdentifier>{09f37393-486c-4921-9798-4f53ef2b5885}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Model.cpp">
-      <Filter>Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClCompile>
     <ClCompile Include="Texture.cpp">
-      <Filter>Texture</Filter>
+      <Filter>Engine\Texture</Filter>
     </ClCompile>
     <ClCompile Include="Object.cpp">
-      <Filter>Object</Filter>
+      <Filter>Engine\Object</Filter>
     </ClCompile>
     <ClCompile Include="Scene.cpp">
-      <Filter>Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="DefaultShader.cpp">
-      <Filter>Shader</Filter>
+      <Filter>Engine\Shader</Filter>
     </ClCompile>
     <ClCompile Include="Shaders.cpp">
-      <Filter>Resource Files</Filter>
+      <Filter>Engine\Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="IShader.cpp">
-      <Filter>Shader</Filter>
+      <Filter>Engine\Shader</Filter>
     </ClCompile>
+    <ClCompile Include="DungeonGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">
-      <Filter>Model</Filter>
+      <Filter>Engine\Model</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
-      <Filter>Texture</Filter>
+      <Filter>Engine\Texture</Filter>
     </ClInclude>
     <ClInclude Include="Object.h">
-      <Filter>Object</Filter>
+      <Filter>Engine\Object</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
-      <Filter>Scene</Filter>
+      <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="DefaultShader.h">
-      <Filter>Shader</Filter>
+      <Filter>Engine\Shader</Filter>
     </ClInclude>
     <ClInclude Include="IShader.h">
-      <Filter>Shader</Filter>
+      <Filter>Engine\Shader</Filter>
     </ClInclude>
+    <ClInclude Include="DungeonGenerator.h" />
   </ItemGroup>
 </Project>

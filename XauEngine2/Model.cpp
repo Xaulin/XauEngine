@@ -140,7 +140,7 @@ Model* loadHeightMap(float x, float y, float z, char* path){
 
 			t[j*width * 2 + i * 2] = float(i) / float(width);
 			t[j*width * 2 + i * 2 + 1] = float(j) / float(height);
-			
+
 			n[j*width * 3 + i * 3] = 0;
 			n[j*width * 3 + i * 3 + 1] = 1;
 			n[j*width * 3 + i * 3 + 2] = 0;
@@ -180,9 +180,8 @@ Model* loadHeightMap(float x, float y, float z, char* path){
 	return model;
 }
 
-
 Model::~Model(){
-	delete[] VBOs;
 	glDeleteBuffers(4, VBOs);
+	delete[] VBOs;
 }
 

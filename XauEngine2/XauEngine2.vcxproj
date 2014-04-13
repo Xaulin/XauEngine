@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DefaultShader.cpp" />
+    <ClCompile Include="DungeonGenerator.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Object.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -156,6 +157,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DefaultShader.h" />
+    <ClInclude Include="DungeonGenerator.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="Scene.h" />

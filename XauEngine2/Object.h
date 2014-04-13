@@ -20,6 +20,8 @@ public:
 	void rotateNext(glm::vec4& vec);
 	void scaleNext(glm::vec3& vec);
 
+	void release();
+
 	Model* model;
 	Texture* texture;
 	glm::mat4 mat;

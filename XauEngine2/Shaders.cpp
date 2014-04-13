@@ -211,20 +211,22 @@ const char* fs2 = {
 		 vec2(0.14383161, -0.14100790)\
 	);\
 	void main(){\
+		vec3 n = normalize(oNormal);\
 		vec3 surfacePos = vec3(M * vec4(fragVert, 1));\
 		vec3 surfaceToLight = normalize(ldir - surfacePos);\
-		float diffuse = max(0, dot(ldir, oNormal));\
+		float diffuse = max(0, dot(ldir, n));\
 		float specular = 0;\
-		if(diffuse > 0.0)\
-			specular = pow(max(0.0, dot(normalize(camPos - surfacePos),\
-				reflect(-surfaceToLight, oNormal))), 2);\
 		float v = 1.0;\
-		if(shadowCoord.x < 1 && shadowCoord.x > -1 && shadowCoord.y < 1 && shadowCoord.y > -1 &&\
-				shadowCoord.z < 1 && shadowCoord.z > -1)\
-			for (int i=0; i < 8;i++){\
-				if(texture(shadowMap, vec3(shadowCoord.xy + poissonDisk[i] / 700.0, (shadowCoord.z)/shadowCoord.w)) < shadowCoord.z - 0.0015 )\
-					v -= 0.2;\
-			}\
+		if(diffuse > 0.0){\
+			/*specular = pow(max(0.0, dot(normalize(camPos - surfacePos),\
+				reflect(-surfaceToLight, n))), 8);*/\
+			if(shadowCoord.x < 1.0 && shadowCoord.x > -1.0 &&\
+			   shadowCoord.y < 1.0 && shadowCoord.y > -1.0 &&\
+			   shadowCoord.z < 1.0 && shadowCoord.z > -1.0 ) for(int i = 0; i < 8; ++i)\
+					if (texture(shadowMap, vec3(shadowCoord.xy + poissonDisk[i]/700.0,\
+						shadowCoord.z /	shadowCoord.w))	< shadowCoord.z - 0.001)\
+							v -= 0.2;\
+		}\
 		color = texture2D(textureSampler, oUV).rgb * max(0.1, v * (diffuse + specular)); \
 	}"
 };
@@ -234,14 +236,14 @@ const char* dvs2 = {
 	uniform mat4 MVP;\
 	void main(){\
 		gl_Position = MVP * vec4(vertex, 1);\
-	}"
+	}\n"
 };
 const char* dfs2 = {
 	"#version 330 core\n\
 	layout(location = 0) out float fragmentdepth;\
 	void main(){\
 		fragmentdepth = gl_FragCoord.z;\
-	}"
+	}\n"
 };
 
 /*M				1
