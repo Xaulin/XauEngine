@@ -168,9 +168,11 @@ const char* vs2 = {
 	out vec3 oNormal;\
 	out vec3 fragVert;\
 	out vec4 shadowCoord;\
+	out float dist;\
 	\
 	void main(){\
 		gl_Position = VP * M * vec4(vertex, 1);\
+		dist = gl_Position.z;\
 		oUV = UV;\
 		oNormal = normal;\
 		fragVert = vertex;\
@@ -189,8 +191,9 @@ const char* fs2 = {
 	in vec3 oNormal;\
 	in vec3 fragVert;\
 	in vec4 shadowCoord;\
+	in float dist;\
 	\
-	out vec3 color;\
+	out vec4 color;\
 	\
 	vec2 poissonDisk[] = vec2[](\
 	     vec2( -0.94201624, -0.39906216 ), \
@@ -212,22 +215,23 @@ const char* fs2 = {
 	);\
 	void main(){\
 		vec3 n = normalize(oNormal);\
-		vec3 surfacePos = vec3(M * vec4(fragVert, 1));\
-		vec3 surfaceToLight = normalize(ldir - surfacePos);\
+		/*vec3 surfacePos = vec3(M * vec4(fragVert, 1));\
+		vec3 surfaceToLight = normalize(-(ldir + surfacePos));*/\
 		float diffuse = max(0, dot(ldir, n));\
-		float specular = 0;\
+		/*float specular = 0;*/\
 		float v = 1.0;\
 		if(diffuse > 0.0){\
 			/*specular = pow(max(0.0, dot(normalize(camPos - surfacePos),\
-				reflect(-surfaceToLight, n))), 8);*/\
+				reflect(-surfaceToLight, n))), 6);*/\
 			if(shadowCoord.x < 1.0 && shadowCoord.x > -1.0 &&\
 			   shadowCoord.y < 1.0 && shadowCoord.y > -1.0 &&\
-			   shadowCoord.z < 1.0 && shadowCoord.z > -1.0 ) for(int i = 0; i < 8; ++i)\
-					if (texture(shadowMap, vec3(shadowCoord.xy + poissonDisk[i]/700.0,\
+			   shadowCoord.z < 1.0 && shadowCoord.z > -1.0)\
+			   for(int i = 0; i < 4; ++i)\
+					if (texture(shadowMap, vec3(shadowCoord.xy + poissonDisk[i]/3000.0,\
 						shadowCoord.z /	shadowCoord.w))	< shadowCoord.z - 0.001)\
 							v -= 0.2;\
 		}\
-		color = texture2D(textureSampler, oUV).rgb * max(0.1, v * (diffuse + specular)); \
+		color = vec4(texture2D(textureSampler, oUV).rgb * max(0.2, v * (diffuse /*+ specular*/)),3.0 - dist/30.0);\
 	}"
 };
 const char* dvs2 = {

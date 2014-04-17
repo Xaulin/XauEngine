@@ -1,4 +1,5 @@
 #include "DefaultShader.h"
+#include <Windows.h>
 
 extern const char* vs;
 extern const char* fs;
@@ -57,7 +58,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	camdir			3
 	*/
 
-	glm::mat4 projShadow = glm::ortho(-30.f, 30.f, -30.f, 30.f, -20.f, 150.f);
+	glm::mat4 projShadow = glm::ortho(-50.f, 50.f, -50.f, 50.f, -50.f, 50.f);
 
 	//=========================Generate shadow map=========================
 	glEnable(GL_CULL_FACE);
@@ -68,12 +69,12 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	for (auto& l : lights){
 		glBindFramebuffer(GL_FRAMEBUFFER, l.fb);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		glViewport(0, 0, FBO_W, FBO_H);
+		glViewport(1, 1, FBO_W - 2, FBO_H - 2);
 		for (auto o : objects){
 			if (!(o->options & ObjectOptions::NoShadow)){
 				l.mat = projShadow *
-					glm::lookAt( eye+ l.dir,
-					eye, glm::vec3(0, 1, 0));
+					glm::lookAt(eye + l.dir,
+					eye - l.dir, glm::vec3(0, 1, 0));
 
 				glUniformMatrix4fv(0, 1, 0, &(l.mat*o->mat)[0][0]);
 				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
@@ -99,7 +100,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 		);
 
 	glm::mat4 projView =
-		glm::perspective(40.f, (float)viewport.z / (float)viewport.w, 0.001f, 1000.f)*
+		glm::perspective(40.f, (float)viewport.z / (float)viewport.w, 0.001f, 200.f)*
 		glm::lookAt(eye, pos, glm::vec3(0, 1, 0));
 
 	for (auto o : objects){
@@ -144,12 +145,15 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 			glDisableVertexAttribArray(1);
 			glDisableVertexAttribArray(0);
 		}
-		else{
+		else if (!(o->options & ObjectOptions::NoVisible)){
 			glUseProgram(program);
 
 			//setup texture
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, o->texture->id);
+			if (o->options & ObjectOptions::ShadowToTexture)//for debug
+				glBindTexture(GL_TEXTURE_2D, lights[0].dtext);
+			else if (o->texture)
+				glBindTexture(GL_TEXTURE_2D, o->texture->id);
 			glUniform1i(ShaderVarLocation.textureSampler, 0);
 
 			glActiveTexture(GL_TEXTURE1);
@@ -158,12 +162,15 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 
 			//setup matrix
 			glUniformMatrix4fv(ShaderVarLocation.VP, 1, 0, &(projView[0][0]));
-			glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(o->mat[0][0]));
+			if (o->options & ObjectOptions::StickToCamera)
+				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(glm::translate(eye))[0][0]);
+			else
+				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(o->mat[0][0]));
 			glUniformMatrix4fv(ShaderVarLocation.DepthMVP, 1, 0, &((biasMatrix *
 				lights[0].mat * o->mat)[0][0]));
 
 			//setup light dir
-			glUniform3fv(ShaderVarLocation.ldir, 1, &(glm::vec4(lights[0].dir, 1) * o->mat)[0]);
+			glUniform3fv(ShaderVarLocation.ldir, 1, &lights[0].dir[0]);
 
 			//setup cam pos
 			glUniform3fv(ShaderVarLocation.camPos, 1, &pos[0]);
@@ -203,6 +210,10 @@ DefaultShader::~DefaultShader(){
 }
 
 void DefaultShader::init(){
+	//opengl settings
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//========================Compile shaders========================
 
 	//===============Main shader===============
@@ -333,10 +344,11 @@ void DefaultShader::addLight(glm::vec3& vec){
 
 	glTexImage2D(GL_TEXTURE_2D, 0, FBO_T, FBO_W, FBO_H, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 
 	glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ld.dtext, 0);
 	glDrawBuffer(GL_NONE);

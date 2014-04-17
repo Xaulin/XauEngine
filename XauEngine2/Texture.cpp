@@ -30,7 +30,7 @@ Texture* loadTexture(char* filepath){
 
 	glGenTextures(1, &texture->id);
 	glBindTexture(GL_TEXTURE_2D, texture->id);
-	glTexStorage2D(GL_TEXTURE_2D, 5, GL_RGBA8, width, height);
+	glTexStorage2D(GL_TEXTURE_2D, 8, GL_RGBA8, width, height);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_BGR, GL_UNSIGNED_BYTE, data);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
 	glGenerateMipmap(GL_TEXTURE_2D);	

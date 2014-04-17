@@ -4,8 +4,8 @@
 #include "GL\glm\gtx\transform.hpp"
 #include <vector>
 #define MAX_LIGHTS 5
-#define FBO_W 2048
-#define FBO_H 2048
+#define FBO_W 4096
+#define FBO_H 4096
 #define FBO_T GL_DEPTH_COMPONENT24
 
 class DefaultShader : public IShader{
