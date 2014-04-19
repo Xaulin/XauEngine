@@ -186,6 +186,7 @@ const char* fs2 = {
 	uniform sampler2DShadow shadowMap;\
 	uniform vec3 ldir;\
 	uniform vec3 camPos;\
+	uniform vec3 ambient;\
 	\
 	in vec2 oUV;\
 	in vec3 oNormal;\
@@ -215,14 +216,14 @@ const char* fs2 = {
 	);\
 	void main(){\
 		vec3 n = normalize(oNormal);\
-		/*vec3 surfacePos = vec3(M * vec4(fragVert, 1));\
-		vec3 surfaceToLight = normalize(-(ldir + surfacePos));*/\
+		vec3 surfacePos = (M * vec4(fragVert, 1)).xyz;\
+		vec3 surfaceToLight = normalize((ldir + surfacePos));\
 		float diffuse = max(0, dot(ldir, n));\
-		/*float specular = 0;*/\
+		float specular = 0;\
 		float v = 1.0;\
-		if(diffuse > 0.0){\
-			/*specular = pow(max(0.0, dot(normalize(camPos - surfacePos),\
-				reflect(-surfaceToLight, n))), 6);*/\
+		if(diffuse > 0){\
+			specular = pow(max(0.0, dot(normalize(camPos - surfacePos),\
+				reflect(-surfaceToLight, n))), 16);\
 			if(shadowCoord.x < 1.0 && shadowCoord.x > -1.0 &&\
 			   shadowCoord.y < 1.0 && shadowCoord.y > -1.0 &&\
 			   shadowCoord.z < 1.0 && shadowCoord.z > -1.0)\
@@ -231,7 +232,7 @@ const char* fs2 = {
 						shadowCoord.z /	shadowCoord.w))	< shadowCoord.z - 0.001)\
 							v -= 0.2;\
 		}\
-		color = vec4(texture2D(textureSampler, oUV).rgb * max(0.2, v * (diffuse /*+ specular*/)),3.0 - dist/30.0);\
+		color = vec4(texture2D(textureSampler, oUV).rgb * max(0.3, v * (diffuse + specular))+ambient,4.0 - dist/30.0);\
 	}"
 };
 const char* dvs2 = {

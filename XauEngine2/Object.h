@@ -1,6 +1,7 @@
 #pragma once
 #include "Texture.h"
 #include "Model.h"
+#include "Colision.h"
 #include "GL\glm\gtx\transform.hpp"
 
 class Object{
@@ -11,6 +12,7 @@ public:
 
 	void setModel(Model* model);
 	void setTexture(Texture* texture);
+	void setColision(Colision* colision);
 
 	void move(glm::vec3& vec);
 	void rotate(glm::vec4& vec);
@@ -24,6 +26,8 @@ public:
 
 	Model* model;
 	Texture* texture;
+	Colision* colision;
+
 	glm::mat4 mat;
 	int options;
 };

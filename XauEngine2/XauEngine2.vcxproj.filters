@@ -23,6 +23,9 @@
     <Filter Include="Engine\Texture">
       <UniqueIdentifier>{09f37393-486c-4921-9798-4f53ef2b5885}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Colision">
+      <UniqueIdentifier>{1687610a-a602-4217-a20e-132a422a3341}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Model.cpp">
@@ -48,6 +51,9 @@
       <Filter>Engine\Shader</Filter>
     </ClCompile>
     <ClCompile Include="DungeonGenerator.cpp" />
+    <ClCompile Include="Colision.cpp">
+      <Filter>Engine\Colision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Model.h">
@@ -69,5 +75,8 @@
       <Filter>Engine\Shader</Filter>
     </ClInclude>
     <ClInclude Include="DungeonGenerator.h" />
+    <ClInclude Include="Colision.h">
+      <Filter>Engine\Colision</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

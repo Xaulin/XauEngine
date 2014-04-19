@@ -20,6 +20,9 @@ void Object::setModel(Model* model){
 void Object::setTexture(Texture* texture){
 	this->texture = texture;
 }
+void Object::setColision(Colision* colision){
+	this->colision = colision;
+}
 
 void Object::move(glm::vec3& vec){
 	mat = glm::translate(vec);

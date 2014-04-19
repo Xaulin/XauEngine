@@ -4,8 +4,7 @@
 #include <cstdio>
 #include <string.h>
 
-class Texture
-{
+class Texture{
 public:
 	friend Texture* loadTexture(char* filepath);
 	~Texture();

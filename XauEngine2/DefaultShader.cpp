@@ -1,15 +1,9 @@
 #include "DefaultShader.h"
 #include <Windows.h>
 
-extern const char* vs;
-extern const char* fs;
-
-extern const char* dvs;
-extern const char* dfs;
 
 extern const char* svs;
 extern const char* sfs;
-
 
 extern const char* vs2;
 extern const char* fs2;
@@ -25,13 +19,13 @@ struct{
 		textureSampler,
 		shadowMap,
 		ldir,
-		camPos;
+		camPos,
+		ambient;
 }ShaderVarLocation;
 
 
 float a = 0;
 void DefaultShader::draw(std::vector<Object*>& objects){
-
 	/*char buf[32];
 	_itoa_s(glGetUniformLocation(program, "camdir"), buf, 10);
 	MessageBoxA(0, buf, 0, 0);*/
@@ -66,16 +60,15 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	glCullFace(GL_BACK);
 	glUseProgram(shadowProgram);
 
-	for (auto& l : lights){
+	for (auto l : lights){
 		glBindFramebuffer(GL_FRAMEBUFFER, l.fb);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(1, 1, FBO_W - 2, FBO_H - 2);
 		for (auto o : objects){
 			if (!(o->options & ObjectOptions::NoShadow)){
 				l.mat = projShadow *
-					glm::lookAt(eye + l.dir,
-					eye - l.dir, glm::vec3(0, 1, 0));
-
+					glm::lookAt(eye + l.dir*10.f,
+					eye - l.dir*10.f, glm::vec3(0, 1, 0));
 				glUniformMatrix4fv(0, 1, 0, &(l.mat*o->mat)[0][0]);
 				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
 				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
@@ -128,7 +121,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 
 			glm::mat4 mat = projView;
 			if (o->options & ObjectOptions::StickToCamera)
-				mat *= glm::translate(eye);
+				mat *= glm::translate(eye)*o->mat;
 			else
 				mat *= o->mat;
 			glUniformMatrix4fv(0, 1, 0, &(mat[0][0]));
@@ -148,6 +141,10 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 		else if (!(o->options & ObjectOptions::NoVisible)){
 			glUseProgram(program);
 
+			/*char buf[32];
+			sprintf_s(buf, "%f", o->mat[2][1]);
+			MessageBoxA(0, buf, 0, 0);*/
+
 			//setup texture
 			glActiveTexture(GL_TEXTURE0);
 			if (o->options & ObjectOptions::ShadowToTexture)//for debug
@@ -163,7 +160,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 			//setup matrix
 			glUniformMatrix4fv(ShaderVarLocation.VP, 1, 0, &(projView[0][0]));
 			if (o->options & ObjectOptions::StickToCamera)
-				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(glm::translate(eye))[0][0]);
+				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(glm::translate(eye)*o->mat)[0][0]);
 			else
 				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(o->mat[0][0]));
 			glUniformMatrix4fv(ShaderVarLocation.DepthMVP, 1, 0, &((biasMatrix *
@@ -171,6 +168,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 
 			//setup light dir
 			glUniform3fv(ShaderVarLocation.ldir, 1, &lights[0].dir[0]);
+			glUniform3fv(ShaderVarLocation.ambient, 1, &ambient[0]);
 
 			//setup cam pos
 			glUniform3fv(ShaderVarLocation.camPos, 1, &pos[0]);
@@ -313,7 +311,7 @@ void DefaultShader::init(){
 	for each(GLuint a in vsid)
 		glDeleteShader(a);
 
-	//=======================Get shader uniforms location=======================
+	//=======================Get uniforms location=======================
 
 	ShaderVarLocation.M = glGetUniformLocation(program, "M");
 	ShaderVarLocation.VP = glGetUniformLocation(program, "VP");
@@ -322,6 +320,7 @@ void DefaultShader::init(){
 	ShaderVarLocation.shadowMap = glGetUniformLocation(program, "shadowMap");
 	ShaderVarLocation.ldir = glGetUniformLocation(program, "ldir");
 	ShaderVarLocation.camPos = glGetUniformLocation(program, "camPos");
+	ShaderVarLocation.ambient = glGetUniformLocation(program, "ambient");
 }
 
 void DefaultShader::setViewport(glm::ivec4& viewport){
@@ -364,4 +363,8 @@ void DefaultShader::addLight(glm::vec3& vec){
 }
 void DefaultShader::setLight(unsigned slot, glm::vec3& vec){
 	lights[slot].dir = vec;
+}
+
+void DefaultShader::setAmbient(glm::vec3& _ambient){
+	ambient = _ambient;
 }

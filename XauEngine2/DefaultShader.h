@@ -20,6 +20,7 @@ public:
 	void setCamera(glm::vec3& eye, glm::vec3& pos);
 	void addLight(glm::vec3& vec);
 	void setLight(unsigned slot, glm::vec3& vec);
+	void setAmbient(glm::vec3& ambient);
 
 private:
 	void init();
@@ -39,5 +40,6 @@ private:
 		glm::vec3 dir;
 	};
 	std::vector<LightData> lights;
+	glm::vec3 ambient;
 };
 

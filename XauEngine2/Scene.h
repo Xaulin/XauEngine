@@ -4,6 +4,8 @@
 #include "Texture.h"
 #include "IShader.h"
 #include <vector>
+#include <Windows.h>
+#include <process.h>
 
 class Scene{
 public:
@@ -13,8 +15,8 @@ public:
 	Scene(IShader* shader);
 	~Scene();
 
-	void add(Object* element);
-	void add(Object** elements, int size);
+	int add(Object* element);
+	int add(Object** elements, int size);
 	void rel(unsigned slot);
 	void rel(unsigned beg, unsigned end);
 	void del(unsigned slot);
@@ -23,9 +25,10 @@ public:
 	void bind(IShader* shader);
 	void draw();
 	IShader* get();
-
+	
 private:
 	std::vector<Object*> objects;
 	IShader* currentShader;
+
 };
 

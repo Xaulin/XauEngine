@@ -12,19 +12,27 @@ public:
 	glm::vec3 pos;
 };
 
+enum DungeonObjectFlags{
+	End = 1
+};
+
 class DungeonGenerator{
 public:
 	DungeonGenerator();
 	~DungeonGenerator();
 
-	void defineObject(Object* object, glm::vec3* dirs, int size);
-	void generate(int count);
+	void defineObject(Object* object, glm::vec3* dirs, int size, int flags = None, int randomRate = 1);
+	void generate(int count, float distance);
 	void applyObjects(Scene* scene);
-	void clean();
+	void clear();
 
 private:
 	std::vector<DungeonObject> objects;
-	std::vector<DungeonObject> defObjects;
+	std::vector<DungeonObject> endObjects;
+	std::vector<DungeonObject*> defObjects;
+	std::vector<DungeonObject*> defEndObjects;
 
+	Scene* lastScene;
+	int firstSceneElement;
 };
 
