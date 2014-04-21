@@ -180,6 +180,71 @@ Model* loadHeightMap(float x, float y, float z, char* path){
 	return model;
 }
 
+Model* createPlane(unsigned x, unsigned z, float a){
+	++x;
+	++z;
+	unsigned fx = x - 1;
+	unsigned fz = z - 1;
+
+	float* v = new float[x * z * 3];
+	float* n = new float[x * z * 3];
+	float* t = new float[x * z * 2];
+	unsigned* f = new unsigned[6 * fx * fz];
+
+
+	for (unsigned i = 0; i < x; ++i)
+		for (unsigned j = 0; j < z; ++j){
+			v[(i * x + j) * 3] = i * a - (x-1) * a / 2.f;
+			v[(i * x + j) * 3 + 1] = 0;
+			v[(i * x + j) * 3 + 2] = j * a - (z-1) * a / 2.f;
+
+			n[(i * x + j) * 3] = 0;
+			n[(i * x + j) * 3 + 1] = 1;
+			n[(i * x + j) * 3 + 2] = 0;
+
+			t[(i * x + j) * 2] = (float)i / x;
+			t[(i * x + j) * 2 + 1] = (float)j / z;
+		}
+
+	/*char buff[32];
+	sprintf_s(buff, "%d, %d", i, j);
+	MessageBoxA(0, buff, 0, 0);*/
+
+	for (unsigned i = 0; i < fx; ++i)
+		for (unsigned j = 0; j < fz; ++j){
+
+			f[6 * (i * fx + j)] = i * x + j;
+			f[6 * (i * fx + j) + 1] = (i + 1) * x + j + 1;
+			f[6 * (i * fx + j) + 2] = (i + 1) * x + j;
+
+			f[6 * (i * fx + j) + 3] = i * x + j;
+			f[6 * (i * fx + j) + 4] = i * x + j + 1;
+			f[6 * (i * fx + j) + 5] = (i + 1) * x + j + 1;
+
+		}
+
+	Model* model = new Model;
+	model->vcount = 6 * fx*fz;
+	model->VBOs = new GLuint[4];
+
+	glGenBuffers(4, model->VBOs);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, model->VBOs[0]);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, model->vcount * 4, f, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, model->VBOs[1]);
+	glBufferData(GL_ARRAY_BUFFER, x*z * 3 * 4, v, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, model->VBOs[2]);
+	glBufferData(GL_ARRAY_BUFFER, x*z * 3 * 4, n, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, model->VBOs[3]);
+	glBufferData(GL_ARRAY_BUFFER, x*z * 2 * 4, t, GL_STATIC_DRAW);
+
+	delete[] v;
+	delete[] t;
+	delete[] n;
+	delete[] f;
+
+	return model;
+}
+
 Model::~Model(){
 	glDeleteBuffers(4, VBOs);
 	delete[] VBOs;

@@ -227,10 +227,10 @@ const char* fs2 = {
 			if(shadowCoord.x < 1.0 && shadowCoord.x > -1.0 &&\
 			   shadowCoord.y < 1.0 && shadowCoord.y > -1.0 &&\
 			   shadowCoord.z < 1.0 && shadowCoord.z > -1.0)\
-			   for(int i = 0; i < 4; ++i)\
+			   for(int i = 0; i < 6; ++i)\
 					if (texture(shadowMap, vec3(shadowCoord.xy + poissonDisk[i]/3000.0,\
 						shadowCoord.z /	shadowCoord.w))	< shadowCoord.z - 0.001)\
-							v -= 0.2;\
+							v -= 0.1;\
 		}\
 		color = vec4(texture2D(textureSampler, oUV).rgb * max(0.3, v * (diffuse + specular))+ambient,4.0 - dist/30.0);\
 	}"
@@ -248,6 +248,33 @@ const char* dfs2 = {
 	layout(location = 0) out float fragmentdepth;\
 	void main(){\
 		fragmentdepth = gl_FragCoord.z;\
+	}\n"
+};
+
+const char* wvs = {
+	"#version 330 core\n\
+	layout(location = 0) in vec3 vertex;\
+	layout(location = 1) in vec2 UV;\
+	uniform mat4 MVP;\
+	uniform float wave;\
+	out vec2 oUV;\
+	out vec3 frag;\
+	void main(){\
+		oUV = UV;\
+		vec3 v = vertex;\
+		v.y += sin(length(v)- wave)/2.;\
+		frag = v; \
+		gl_Position = MVP * vec4(v,1);\
+	}\n"
+};
+const char* wfs = {
+	"#version 330 core\n\
+	uniform sampler2D textureSampler;\
+	layout(location = 0) out vec4 color;\
+	in vec2 oUV;\
+	in vec3 frag;\
+	void main(){\
+		color = vec4(vec3(0,0,0.1) + texture2D(textureSampler, oUV).rgb + frag.y/8, 0.5);\
 	}\n"
 };
 

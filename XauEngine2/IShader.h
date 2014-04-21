@@ -16,6 +16,7 @@ enum ObjectOptions{
 	SkyBox = 128 + 64 + 32 + 16 + 2 + 1,
 	ShadowToTexture = 256,
 	NoVisible = 512,
+	Water = 1024,
 };
 
 class IShader

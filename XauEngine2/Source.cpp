@@ -95,15 +95,16 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 
 	try{
 		auto shader = new DefaultShader(glm::ivec4(0, 0, 1024, 768));
-		shader->addLight(glm::normalize(glm::vec3(1.f, 2, 1.f)));
+		shader->addLight(glm::normalize(glm::vec3(0.5f, 1.f, 0.5f)));
 		//->setAmbient(glm::vec3(-0.02, -0.02, -0.035));
 
 		Scene scene(shader);
 		scene.add(new Object(loadModel("Models/skybox2.ply"),
 			loadTexture("Textures/skybox.bmp"), SkyBox));
+
 		scene.add(new Object(loadModel("Models/cube.ply"),
-			loadTexture("Textures/brick.bmp"),ShadowToTexture));
-		
+			loadTexture("Textures/brick.bmp")));
+
 		glm::vec3 dirs[] = {
 			glm::vec3(1, 0, 0),
 			glm::vec3(0, 0, 1),
@@ -149,28 +150,28 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 		};
 		/*glm::vec3 dirs401[] = {
 			glm::vec3(-1, -1, 0),
-		};
-		glm::vec3 dirs411[] = {
+			};
+			glm::vec3 dirs411[] = {
 			glm::vec3(0, -1, -1),
-		};
-		glm::vec3 dirs421[] = {
+			};
+			glm::vec3 dirs421[] = {
 			glm::vec3(1, -1, 0),
-		};
-		glm::vec3 dirs431[] = {
+			};
+			glm::vec3 dirs431[] = {
 			glm::vec3(0, -1, 1),
-		};
-		glm::vec3 dirs402[] = {
+			};
+			glm::vec3 dirs402[] = {
 			glm::vec3(-1, 1, 0),
-		};
-		glm::vec3 dirs412[] = {
+			};
+			glm::vec3 dirs412[] = {
 			glm::vec3(0, 1, -1),
-		};
-		glm::vec3 dirs422[] = {
+			};
+			glm::vec3 dirs422[] = {
 			glm::vec3(1, 1, 0),
-		};
-		glm::vec3 dirs432[] = {
+			};
+			glm::vec3 dirs432[] = {
 			glm::vec3(0, 1, 1),
-		};*/
+			};*/
 		glm::vec3 dirs5[] = {
 			glm::vec3(1, 0, 0),
 			glm::vec3(-1, 0, 0),
@@ -226,7 +227,7 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 			glm::vec3(0, 0, -1),
 		};
 
-		Texture* dungText = loadTexture("Textures/shadowtst.bmp");
+		Texture* dungText = loadTexture("Textures/dung_tex.bmp");
 
 		dg.defineObject(new Object(loadModel("Models/dung1.ply"),
 			dungText), dirs, 4);
@@ -281,22 +282,30 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 		dg.defineObject(new Object(loadModel("Models/dung73.ply"),
 			dungText), dirs73, 2);
 
-		scene[1]->move(glm::vec3(0, 1, 0));
+		int pos = scene.add(new Object(createPlane(32, 32, 0.5f), loadTexture("Textures/blueText.bmp"), Water | NoCullFacing | NoShadow));
+		scene[pos]->move(glm::vec3(0, -28, 0));
+
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_POINT);
+		//glClearColor(1, 1, 1, 1);
 
 		clock_t fpsCounter = clock();
 
+		float counter = (float)M_PI;
 		int fps = 0;
 		while (!glfwWindowShouldClose(window)){
+			counter += 0.1f;
 			++fps;
+
+			scene[1]->move(glm::vec3(0, sin(counter) / 2.f - 25, 0));
 			if (clock() > fpsCounter + 2000){
 				char buf[32];
-				sprintf_s(buf, "FPS: %d", fps/2);
+				sprintf_s(buf, "FPS: %d", fps / 2);
 				glfwSetWindowTitle(window, buf);
 
 				fps = 0;
 				fpsCounter = clock();
 			}
-			
+
 			scene[0]->rotateNext(glm::vec4(0, 1, 0, 0.01f));
 
 			if (generatre){
@@ -323,7 +332,7 @@ INT WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, INT){
 	catch (const char* e){
 		MessageBoxA(0, e, 0, 0);
 	}
-	
+
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }

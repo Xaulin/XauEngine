@@ -11,6 +11,9 @@ extern const char* fs2;
 extern const char* dvs2;
 extern const char* dfs2;
 
+extern const char* wvs;
+extern const char* wfs;
+
 
 struct{
 	int M,
@@ -24,7 +27,7 @@ struct{
 }ShaderVarLocation;
 
 
-float a = 0;
+float wave = 0;
 void DefaultShader::draw(std::vector<Object*>& objects){
 	/*char buf[32];
 	_itoa_s(glGetUniformLocation(program, "camdir"), buf, 10);
@@ -52,7 +55,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	camdir			3
 	*/
 
-	glm::mat4 projShadow = glm::ortho(-50.f, 50.f, -50.f, 50.f, -50.f, 50.f);
+	glm::mat4 projShadow = glm::ortho(-80.f, 80.f, -80.f, 80.f, -80.f, 80.f);
 
 	//=========================Generate shadow map=========================
 	glEnable(GL_CULL_FACE);
@@ -60,11 +63,11 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 	glCullFace(GL_BACK);
 	glUseProgram(shadowProgram);
 
-	for (auto l : lights){
+	for (auto& l : lights){
 		glBindFramebuffer(GL_FRAMEBUFFER, l.fb);
 		glClear(GL_DEPTH_BUFFER_BIT);
 		glViewport(1, 1, FBO_W - 2, FBO_H - 2);
-		for (auto o : objects){
+		for (auto& o : objects){
 			if (!(o->options & ObjectOptions::NoShadow)){
 				l.mat = projShadow *
 					glm::lookAt(eye + l.dir*10.f,
@@ -96,7 +99,7 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 		glm::perspective(40.f, (float)viewport.z / (float)viewport.w, 0.001f, 200.f)*
 		glm::lookAt(eye, pos, glm::vec3(0, 1, 0));
 
-	for (auto o : objects){
+	for (auto& o : objects){
 		if (o->options & ObjectOptions::NoDepthTest)
 			glDisable(GL_DEPTH_TEST);
 		else
@@ -139,57 +142,91 @@ void DefaultShader::draw(std::vector<Object*>& objects){
 			glDisableVertexAttribArray(0);
 		}
 		else if (!(o->options & ObjectOptions::NoVisible)){
-			glUseProgram(program);
+			if (o->options & ObjectOptions::Water){
 
-			/*char buf[32];
-			sprintf_s(buf, "%f", o->mat[2][1]);
-			MessageBoxA(0, buf, 0, 0);*/
+				char buf[32];
+				sprintf_s(buf, "%d", glGetUniformLocation(waterProgram, "textureSampler"));
+				//MessageBoxA(0, buf, 0, 0);
 
-			//setup texture
-			glActiveTexture(GL_TEXTURE0);
-			if (o->options & ObjectOptions::ShadowToTexture)//for debug
-				glBindTexture(GL_TEXTURE_2D, lights[0].dtext);
-			else if (o->texture)
+				glUseProgram(waterProgram);
+				glActiveTexture(GL_TEXTURE0);
 				glBindTexture(GL_TEXTURE_2D, o->texture->id);
-			glUniform1i(ShaderVarLocation.textureSampler, 0);
+				glUniform1i(1, 0);
+				glUniform1f(2, wave += 0.1f);
 
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, lights[0].dtext);
-			glUniform1i(ShaderVarLocation.shadowMap, 1);
+				glm::mat4 mat = projView;
+				if (o->options & ObjectOptions::StickToCamera)
+					mat *= glm::translate(eye)*o->mat;
+				else
+					mat *= o->mat;
+				glUniformMatrix4fv(0, 1, 0, &(mat[0][0]));
 
-			//setup matrix
-			glUniformMatrix4fv(ShaderVarLocation.VP, 1, 0, &(projView[0][0]));
-			if (o->options & ObjectOptions::StickToCamera)
-				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(glm::translate(eye)*o->mat)[0][0]);
-			else
-				glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(o->mat[0][0]));
-			glUniformMatrix4fv(ShaderVarLocation.DepthMVP, 1, 0, &((biasMatrix *
-				lights[0].mat * o->mat)[0][0]));
+				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
+				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[3]);
+				glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, 0);
 
-			//setup light dir
-			glUniform3fv(ShaderVarLocation.ldir, 1, &lights[0].dir[0]);
-			glUniform3fv(ShaderVarLocation.ambient, 1, &ambient[0]);
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o->model->VBOs[0]);
+				glDrawElements(GL_TRIANGLES, o->model->vcount, GL_UNSIGNED_INT, 0);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(0);
 
-			//setup cam pos
-			glUniform3fv(ShaderVarLocation.camPos, 1, &pos[0]);
-			//draw
-			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
-			glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[2]);
-			glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, 0);
-			glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[3]);
-			glVertexAttribPointer(2, 2, GL_FLOAT, 0, 0, 0);
+			}
+			else{
+				glUseProgram(program);
 
-			glEnableVertexAttribArray(0);
-			glEnableVertexAttribArray(1);
-			glEnableVertexAttribArray(2);
+				/*char buf[32];
+				sprintf_s(buf, "%f", o->mat[2][1]);
+				MessageBoxA(0, buf, 0, 0);*/
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o->model->VBOs[0]);
-			glDrawElements(GL_TRIANGLES, o->model->vcount, GL_UNSIGNED_INT, 0);
+				//setup texture
+				glActiveTexture(GL_TEXTURE0);
+				if (o->options & ObjectOptions::ShadowToTexture)//for debug
+					glBindTexture(GL_TEXTURE_2D, lights[0].dtext);
+				else if (o->texture)
+					glBindTexture(GL_TEXTURE_2D, o->texture->id);
+				glUniform1i(ShaderVarLocation.textureSampler, 0);
 
-			glDisableVertexAttribArray(2);
-			glDisableVertexAttribArray(1);
-			glDisableVertexAttribArray(0);
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, lights[0].dtext);
+				glUniform1i(ShaderVarLocation.shadowMap, 1);
+
+				//setup matrix
+				glUniformMatrix4fv(ShaderVarLocation.VP, 1, 0, &(projView[0][0]));
+				if (o->options & ObjectOptions::StickToCamera)
+					glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(glm::translate(eye)*o->mat)[0][0]);
+				else
+					glUniformMatrix4fv(ShaderVarLocation.M, 1, 0, &(o->mat[0][0]));
+				glUniformMatrix4fv(ShaderVarLocation.DepthMVP, 1, 0, &((biasMatrix *
+					lights[0].mat * o->mat)[0][0]));
+
+				//setup light dir
+				glUniform3fv(ShaderVarLocation.ldir, 1, &lights[0].dir[0]);
+				glUniform3fv(ShaderVarLocation.ambient, 1, &ambient[0]);
+
+				//setup cam pos
+				glUniform3fv(ShaderVarLocation.camPos, 1, &pos[0]);
+				//draw
+				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[1]);
+				glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[2]);
+				glVertexAttribPointer(1, 3, GL_FLOAT, 0, 0, 0);
+				glBindBuffer(GL_ARRAY_BUFFER, o->model->VBOs[3]);
+				glVertexAttribPointer(2, 2, GL_FLOAT, 0, 0, 0);
+
+				glEnableVertexAttribArray(0);
+				glEnableVertexAttribArray(1);
+				glEnableVertexAttribArray(2);
+
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o->model->VBOs[0]);
+				glDrawElements(GL_TRIANGLES, o->model->vcount, GL_UNSIGNED_INT, 0);
+
+				glDisableVertexAttribArray(2);
+				glDisableVertexAttribArray(1);
+				glDisableVertexAttribArray(0);
+			}
 		}
 	}
 }
@@ -216,7 +253,7 @@ void DefaultShader::init(){
 
 	//===============Main shader===============
 
-	GLuint vsid[6];
+	GLuint vsid[8];
 	vsid[0] = glCreateShader(GL_VERTEX_SHADER);
 	vsid[1] = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -300,6 +337,37 @@ void DefaultShader::init(){
 		glGetProgramiv(simpleProgram, GL_INFO_LOG_LENGTH, &len);
 		char* log = new char[len];
 		glGetProgramInfoLog(simpleProgram, len, 0, log);
+
+		if (log[0])
+			throw log;
+
+		delete[] log;
+	}
+#endif
+
+	//===============Water shader===============
+
+	vsid[6] = glCreateShader(GL_VERTEX_SHADER);
+	vsid[7] = glCreateShader(GL_FRAGMENT_SHADER);
+
+	glShaderSource(vsid[6], 1, &wvs, 0);
+	glCompileShader(vsid[6]);
+	glShaderSource(vsid[7], 1, &wfs, 0);
+	glCompileShader(vsid[7]);
+
+	waterProgram = glCreateProgram();
+
+	glAttachShader(waterProgram, vsid[6]);
+	glAttachShader(waterProgram, vsid[7]);
+
+	glLinkProgram(waterProgram);
+
+#ifndef NDEBUG
+	{
+		GLsizei len;
+		glGetProgramiv(waterProgram, GL_INFO_LOG_LENGTH, &len);
+		char* log = new char[len];
+		glGetProgramInfoLog(waterProgram, len, 0, log);
 
 		if (log[0])
 			throw log;

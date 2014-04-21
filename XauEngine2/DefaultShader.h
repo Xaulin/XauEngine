@@ -27,6 +27,7 @@ private:
 	GLuint program;
 	GLuint shadowProgram;
 	GLuint simpleProgram;
+	GLuint waterProgram;
 
 	//Camera options
 	glm::vec3 eye, pos;
